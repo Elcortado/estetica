@@ -6,8 +6,10 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const fmtF=f=>f.split("-").reverse().join("/");
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
-const PN=id=>(CONFIG.profesionales.find(p=>p.id===id)||{}).n||"";
-const esp=t=>(CONFIG.servicios.find(s=>s.n===t.servicio||s.items.includes(t.servicio))||{n:"Otro"}).n; // especialidad = categoría del servicio
+const copyCatalog=()=>({servicios:CONFIG.servicios.map(s=>({...s,items:[...(s.items||[])]})),profesionales:CONFIG.profesionales.map(p=>({...p,esp:Array.isArray(p.esp)?[...p.esp]:p.esp}))});
+let catalog=copyCatalog();
+const PN=id=>(catalog.profesionales.find(p=>p.id===id)||{}).n||"";
+const esp=t=>(catalog.servicios.find(s=>s.n===t.servicio||s.items.includes(t.servicio))||{n:"Otro"}).n; // especialidad = categoría del servicio
 let F,AU,db,auth,turnos={},estados={},unsubs=[],fe="todos",pf="",ef="",dD=key(hoy0()),dH="";
 
 function wa(t){
@@ -25,7 +27,7 @@ function render(){
  const pend=rows.filter(t=>t.estado==="pendiente").length;
  const cuenta=f=>{const m={};rows.forEach(t=>{const k=f(t);m[k]=(m[k]||0)+1});return Object.entries(m).map(([k,v])=>`${esc(k)} <b>${v}</b>`).join(" · ")};
  $("#tot").innerHTML=`<p class="n"><b>${rows.length}</b> ${rows.length===1?"turno":"turnos"} ${txtRango()}</p>`+(rows.length
-  ?`<p>${pend} pendientes · ${rows.length-pend} confirmados</p><p>Por especialidad: ${cuenta(esp)}</p>`+(CONFIG.profesionales.length>1?`<p>Por profesional: ${cuenta(t=>PN(t.pro)||"Sin asignar")}</p>`:""):"");
+  ?`<p>${pend} pendientes · ${rows.length-pend} confirmados</p><p>Por especialidad: ${cuenta(esp)}</p>`+(catalog.profesionales.length>1?`<p>Por profesional: ${cuenta(t=>PN(t.pro)||"Sin asignar")}</p>`:""):"");
  if(!rows.length){$("#lista").innerHTML='<p class="vacio">No hay turnos para esta selección.</p>';return}
  let h="",dia="";
  for(const t of rows){
@@ -46,6 +48,37 @@ function render(){
 
 const aviso=m=>{$("#aviso").textContent=m;$("#aviso").classList.remove("hide")};
 const sinPermiso=()=>aviso("No tenés permiso para ver los turnos. Revisá las reglas de Firestore y que el UID cargado sea el tuyo.");
+const catalogStatus=m=>{const el=$("#catalogStatus");el.textContent=m;el.classList.remove("hide")};
+const slug=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+function renderCatalogo(){
+ const espList=$("#espList"),proList=$("#proList");
+ if(!espList||!proList)return;
+ $("#espCount").textContent=catalog.servicios.length;
+ $("#proCount").textContent=catalog.profesionales.length;
+ espList.innerHTML=catalog.servicios.length?catalog.servicios.map(s=>`<div class="catalog-item"><div class="catalog-item__main"><strong>${esc(s.n)}</strong><small>${esc((s.items||[]).join(" · ")||"Sin tratamientos detallados")} · Desde ${esc(s.p||"Consultar")}</small></div><button class="delete-catalog" type="button" data-del-catalog="esp" data-id="${esc(s.n)}">Borrar</button></div>`).join(""):'<p class="vacio">Todavía no hay especialidades cargadas.</p>';
+ proList.innerHTML=catalog.profesionales.length?catalog.profesionales.map(p=>`<div class="catalog-item"><div class="catalog-item__main"><strong>${esc(p.n)}</strong><small>${esc(Array.isArray(p.esp)&&p.esp.length?p.esp.join(" · "):"Todas las especialidades")}</small></div><button class="delete-catalog" type="button" data-del-catalog="pro" data-id="${esc(p.id)}">Borrar</button></div>`).join(""):'<p class="vacio">Todavía no hay especialistas cargados.</p>';
+}
+function renderFiltros(){
+ const proActual=catalog.profesionales.some(p=>p.id===pf),espActual=catalog.servicios.some(s=>s.n===ef);
+ if(!proActual)pf="";if(!espActual)ef="";
+ $("#pfil").innerHTML='<option value="">Todas</option>'+catalog.profesionales.map(p=>`<option value="${esc(p.id)}">${esc(p.n)}</option>`).join("");
+ $("#efil").innerHTML='<option value="">Todas</option>'+[...catalog.servicios.map(s=>s.n),"Otro"].map(n=>`<option>${esc(n)}</option>`).join("");
+ $("#pfil").value=pf;$("#efil").value=ef;$("#pbox").classList.toggle("hide",catalog.profesionales.length<2);
+}
+async function cargarCatalogo(){
+ const snap=await F.getDoc(F.doc(db,"config","catalogo"));
+ if(snap.exists()){
+  const data=snap.data();
+  if(Array.isArray(data.servicios))catalog.servicios=data.servicios.filter(s=>s&&s.n).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));
+  if(Array.isArray(data.profesionales))catalog.profesionales=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>({...p,esp:Array.isArray(p.esp)?p.esp:undefined}));
+ }
+ renderCatalogo();renderFiltros();
+}
+async function guardarCatalogo(){
+ await F.setDoc(F.doc(db,"config","catalogo"),{servicios:catalog.servicios,profesionales:catalog.profesionales,actualizadoEn:F.serverTimestamp()});
+ renderCatalogo();renderFiltros();render();
+}
 
 /* Solo se leen los turnos del rango elegido */
 function suscribir(){
@@ -66,9 +99,11 @@ function rango(r){
  else{dD=dH=""}
  $("#fd").value=dD;$("#fh").value=dH;suscribir();
 }
-function entrar(u){
+async function entrar(u){
  $("#loginBox").classList.add("hide");$("#panel").classList.remove("hide");$("#salir").classList.remove("hide");
- $("#quien").textContent=u.email;suscribir();
+ $("#quien").textContent=u.email;
+ try{await cargarCatalogo()}catch(x){catalogStatus("No se pudo cargar el catálogo guardado. Se muestra la configuración local.");renderCatalogo();renderFiltros()}
+ suscribir();
 }
 function salir(){
  unsubs.forEach(u=>u());unsubs=[];turnos={};estados={};
@@ -88,10 +123,40 @@ $("#fd").onchange=$("#fh").onchange=()=>{
 };
 $("#pfil").onchange=e=>{pf=e.target.value;render()};
 $("#efil").onchange=e=>{ef=e.target.value;render()};
-$("#pfil").innerHTML='<option value="">Todas</option>'+CONFIG.profesionales.map(p=>`<option value="${p.id}">${p.n}</option>`).join("");
-$("#efil").innerHTML='<option value="">Todas</option>'+[...CONFIG.servicios.map(s=>s.n),"Otro"].map(n=>`<option>${n}</option>`).join("");
-if(CONFIG.profesionales.length<2)$("#pbox").classList.add("hide");
+renderFiltros();
 $("#fd").value=dD;
+
+$("#togglePass").onclick=()=>{
+ const input=$("#pass"),visible=input.type==="text";
+ input.type=visible?"password":"text";$("#togglePass").textContent=visible?"Mostrar":"Ocultar";$("#togglePass").setAttribute("aria-label",visible?"Mostrar contraseña":"Ocultar contraseña");$("#togglePass").setAttribute("aria-pressed",String(!visible));
+};
+
+$("#espForm").onsubmit=async e=>{
+ e.preventDefault();
+ const name=$("#nuevaEsp").value.trim(),price=$("#precioEsp").value.trim()||"Consultar",items=$("#tratamientosEsp").value.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),button=e.submitter;
+ if(catalog.servicios.some(s=>s.n.toLocaleLowerCase()===name.toLocaleLowerCase())){catalogStatus("Esa especialidad ya existe.");return}
+ catalog.servicios.push({n:name,p:price,items:items.length?items:["Consultar tratamientos"]});button.disabled=true;
+ try{await guardarCatalogo();e.target.reset();catalogStatus("Especialidad agregada correctamente.")}catch(x){catalog.servicios.pop();catalogStatus("No se pudo guardar la especialidad. Revisá los permisos de Firestore.")}finally{button.disabled=false}
+};
+$("#proForm").onsubmit=async e=>{
+ e.preventDefault();
+ const name=$("#nuevoPro").value.trim(),input=$("#especialidadesPro").value,requested=input.split(/[\n,]/).map(x=>x.trim().toLocaleLowerCase()).filter(Boolean),assigned=catalog.servicios.map(s=>s.n).filter(n=>requested.includes(n.toLocaleLowerCase())),button=e.submitter;
+ if(catalog.profesionales.some(p=>p.n.toLocaleLowerCase()===name.toLocaleLowerCase())){catalogStatus("Ese especialista ya existe.");return}
+ const id=`${slug(name)||"especialista"}-${Date.now().toString(36)}`;
+ catalog.profesionales.push(assigned.length?{id,n:name,esp:assigned}:{id,n:name});button.disabled=true;
+ try{await guardarCatalogo();e.target.reset();catalogStatus("Especialista agregado correctamente.")}catch(x){catalog.profesionales.pop();catalogStatus("No se pudo guardar el especialista. Revisá los permisos de Firestore.")}finally{button.disabled=false}
+};
+$("#catalogo").onclick=async e=>{
+ const button=e.target.closest("[data-del-catalog]");if(!button)return;
+ const type=button.dataset.delCatalog,id=button.dataset.id;
+ if(!confirm(`¿Borrar ${type==="esp"?"esta especialidad":"este especialista"}?`))return;
+ const previous=catalog;
+ if(type==="esp"){
+  catalog.servicios=catalog.servicios.filter(s=>s.n!==id);
+  catalog.profesionales=catalog.profesionales.map(p=>Array.isArray(p.esp)?{...p,esp:p.esp.filter(n=>n!==id)}:p);
+ }else catalog.profesionales=catalog.profesionales.filter(p=>p.id!==id);
+ try{await guardarCatalogo();catalogStatus(`${type==="esp"?"Especialidad":"Especialista"} eliminado correctamente.`)}catch(x){catalog=previous;renderCatalogo();renderFiltros();catalogStatus("No se pudo eliminar. Revisá los permisos de Firestore.")}
+};
 
 $("#lista").onclick=async e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const id=b.dataset.id;

@@ -3,13 +3,15 @@ const key=d=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 const MES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const today=new Date();today.setHours(0,0,0,0);
 const maxD=new Date(today);maxD.setDate(maxD.getDate()+CONFIG.diasAdelante);
-const PROS=CONFIG.profesionales,proDe=id=>PROS.find(p=>p.id===id)||PROS[0];
+let SERVICIOS=CONFIG.servicios,PROS=CONFIG.profesionales;
+const proDe=id=>PROS.find(p=>p.id===id)||PROS[0];
 let view=new Date(today.getFullYear(),today.getMonth(),1),selD=null,selT=null,selP=null,selE=null,booked={};
 const demo=firebaseConfig.apiKey.startsWith("TU_");
 let db,F,unsub=null,fbReady=null,tok=0;
 
 $("#waFlot").href="https://wa.me/"+CONFIG.whatsapp;
-$("#cats").innerHTML=CONFIG.servicios.map((s,i)=>`<article class="card service-card"><span class="service-card__number">${String(i+1).padStart(2,"0")}</span><h3>${s.n}</h3><ul>${s.items.map(item=>`<li>${item}</li>`).join("")}</ul><small>Desde ${s.p}</small></article>`).join("");
+const renderServices=()=>$("#cats").innerHTML=SERVICIOS.map((s,i)=>`<article class="card service-card"><span class="service-card__number">${String(i+1).padStart(2,"0")}</span><h3>${s.n}</h3><ul>${s.items.map(item=>`<li>${item}</li>`).join("")}</ul><small>Desde ${s.p}</small></article>`).join("");
+renderServices();
 
 /* Menú responsive */
 const navToggle=$("#navToggle"),mainNav=$("#mainNav");
@@ -80,7 +82,7 @@ function slotsDe(d,p){const h=(p.horarios||CONFIG.horarios)[d.getDay()];if(!h)re
 const idOf=(f,t,p)=>`${f}_${t.replace(":","")}_${p}`;
 const fmtF=f=>f.split("-").reverse().join("/");
 const prosDe=(e,dt)=>PROS.filter(p=>(!p.esp||p.esp.includes(e))&&slotsDe(dt,p).length);
-const espsDe=dt=>CONFIG.servicios.map(s=>s.n).filter(e=>prosDe(e,dt).length);
+const espsDe=dt=>SERVICIOS.map(s=>s.n).filter(e=>prosDe(e,dt).length);
 
 function cal(){
  const y=view.getFullYear(),m=view.getMonth();
@@ -191,4 +193,17 @@ $("#form").onsubmit=async e=>{
 };
 $("#otro").onclick=()=>$("#okBox").classList.add("hide");
 
-cal();escuchar();
+async function cargarCatalogoPublico(){
+ if(demo)return;
+ try{
+  await fbReady;
+  const snap=await F.getDoc(F.doc(db,"config","catalogo"));
+  if(!snap.exists())return;
+  const data=snap.data();
+  if(Array.isArray(data.servicios))SERVICIOS=data.servicios.filter(s=>s&&s.n).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));
+  if(Array.isArray(data.profesionales))PROS=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>({...p,esp:Array.isArray(p.esp)?p.esp:undefined}));
+  renderServices();refresh();
+ }catch(e){/* Se mantiene el catálogo local si Firebase no permite lectura pública. */}
+}
+
+cal();escuchar();cargarCatalogoPublico();
