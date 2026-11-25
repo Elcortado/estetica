@@ -76,7 +76,7 @@ async function cargarCatalogo(){
  renderCatalogo();renderFiltros();
 }
 async function guardarCatalogo(){
- await F.setDoc(F.doc(db,"config","catalogo"),{servicios:catalog.servicios,profesionales:catalog.profesionales,actualizadoEn:F.serverTimestamp()});
+ await F.setDoc(F.doc(db,"config","catalogo"),{servicios:catalog.servicios,profesionales:catalog.profesionales});
  renderCatalogo();renderFiltros();render();
 }
 
@@ -136,7 +136,7 @@ $("#espForm").onsubmit=async e=>{
  const name=$("#nuevaEsp").value.trim(),price=$("#precioEsp").value.trim()||"Consultar",items=$("#tratamientosEsp").value.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),button=e.submitter;
  if(catalog.servicios.some(s=>s.n.toLocaleLowerCase()===name.toLocaleLowerCase())){catalogStatus("Esa especialidad ya existe.");return}
  catalog.servicios.push({n:name,p:price,items:items.length?items:["Consultar tratamientos"]});button.disabled=true;
- try{await guardarCatalogo();e.target.reset();catalogStatus("Especialidad agregada correctamente.")}catch(x){catalog.servicios.pop();catalogStatus("No se pudo guardar la especialidad. Revisá los permisos de Firestore.")}finally{button.disabled=false}
+ try{await guardarCatalogo();e.target.reset();catalogStatus("Especialidad agregada correctamente.")}catch(x){catalog.servicios.pop();console.error(x);catalogStatus(`No se pudo guardar la especialidad (${x.code||"error"}). Revisá las reglas de Firestore.`)}finally{button.disabled=false}
 };
 $("#proForm").onsubmit=async e=>{
  e.preventDefault();
@@ -144,7 +144,7 @@ $("#proForm").onsubmit=async e=>{
  if(catalog.profesionales.some(p=>p.n.toLocaleLowerCase()===name.toLocaleLowerCase())){catalogStatus("Ese especialista ya existe.");return}
  const id=`${slug(name)||"especialista"}-${Date.now().toString(36)}`;
  catalog.profesionales.push(assigned.length?{id,n:name,esp:assigned}:{id,n:name});button.disabled=true;
- try{await guardarCatalogo();e.target.reset();catalogStatus("Especialista agregado correctamente.")}catch(x){catalog.profesionales.pop();catalogStatus("No se pudo guardar el especialista. Revisá los permisos de Firestore.")}finally{button.disabled=false}
+ try{await guardarCatalogo();e.target.reset();catalogStatus("Especialista agregado correctamente.")}catch(x){catalog.profesionales.pop();console.error(x);catalogStatus(`No se pudo guardar el especialista (${x.code||"error"}). Revisá las reglas de Firestore.`)}finally{button.disabled=false}
 };
 $("#catalogo").onclick=async e=>{
  const button=e.target.closest("[data-del-catalog]");if(!button)return;
@@ -155,7 +155,7 @@ $("#catalogo").onclick=async e=>{
   catalog.servicios=catalog.servicios.filter(s=>s.n!==id);
   catalog.profesionales=catalog.profesionales.map(p=>Array.isArray(p.esp)?{...p,esp:p.esp.filter(n=>n!==id)}:p);
  }else catalog.profesionales=catalog.profesionales.filter(p=>p.id!==id);
- try{await guardarCatalogo();catalogStatus(`${type==="esp"?"Especialidad":"Especialista"} eliminado correctamente.`)}catch(x){catalog=previous;renderCatalogo();renderFiltros();catalogStatus("No se pudo eliminar. Revisá los permisos de Firestore.")}
+ try{await guardarCatalogo();catalogStatus(`${type==="esp"?"Especialidad":"Especialista"} eliminado correctamente.`)}catch(x){catalog=previous;renderCatalogo();renderFiltros();console.error(x);catalogStatus(`No se pudo eliminar (${x.code||"error"}). Revisá las reglas de Firestore.`)}
 };
 
 $("#lista").onclick=async e=>{
