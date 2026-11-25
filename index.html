@@ -10,12 +10,19 @@
 </head>
 <body>
 
-<nav><div class="wrap">
- <b>Vitali</b>
- <div><a href="#servicios">Servicios</a><a href="#packs">Packs</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a><a class="btn w" href="#reservas">Reservar turno</a></div>
-</div></nav>
+<nav>
+ <div class="wrap nav__wrap">
+  <a class="brand" href="#inicio" aria-label="Vitali, volver al inicio">Vitali</a>
+  <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú">
+   <span></span><span></span><span></span>
+  </button>
+  <div class="nav__links" id="mainNav">
+   <a href="#servicios">Servicios</a><a href="#packs">Packs</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a><a class="btn w" href="#reservas">Reservar turno</a>
+  </div>
+ </div>
+</nav>
 
-<header class="hero">
+<header class="hero" id="inicio">
  <video class="hero__video" autoplay muted loop playsinline preload="metadata" poster="logo.jpg" aria-hidden="true">
   <source src="assets/clinica.mp4" type="video/mp4">
  </video>
@@ -38,10 +45,21 @@
 <section id="packs" class="packs"><div class="wrap">
  <h2>Packs y promociones</h2>
  <p class="sub">Combinaciones pensadas para que cuides tu piel y tu cuerpo al mejor precio.</p>
- <div class="grid">
-  <div class="card"><h3>Pack Renová</h3><p>Limpieza facial profunda + masaje descontracturante.</p><small><strong>$38.000</strong></small></div>
-  <div class="card"><h3>Pack Verano</h3><p>Depilación definitiva (4 zonas) + hidratación corporal.</p><small><strong>$52.000</strong></small></div>
-  <div class="card"><h3>Pack Día de spa</h3><p>Masaje relajante, facial hidratante y belleza de manos.</p><small><strong>$60.000</strong></small></div>
+ <div class="packs-carousel" id="packsCarousel">
+  <div class="packs-viewport">
+   <div class="packs-track" id="packsTrack">
+    <article class="card pack-card"><span class="pack-card__tag">Más elegido</span><h3>Pack Renová</h3><p>Limpieza facial profunda + masaje descontracturante.</p><small><strong>$38.000</strong></small></article>
+    <article class="card pack-card"><span class="pack-card__tag">Temporada</span><h3>Pack Verano</h3><p>Depilación definitiva (4 zonas) + hidratación corporal.</p><small><strong>$52.000</strong></small></article>
+    <article class="card pack-card"><span class="pack-card__tag">Experiencia</span><h3>Pack Día de spa</h3><p>Masaje relajante, facial hidratante y belleza de manos.</p><small><strong>$60.000</strong></small></article>
+    <article class="card pack-card"><span class="pack-card__tag">Nuevo</span><h3>Pack Glow</h3><p>Radiofrecuencia facial + hidratación corporal intensiva.</p><small><strong>$48.000</strong></small></article>
+    <article class="card pack-card"><span class="pack-card__tag">Relax</span><h3>Pack Equilibrio</h3><p>Drenaje linfático + masaje relajante de cuerpo completo.</p><small><strong>$46.000</strong></small></article>
+   </div>
+  </div>
+  <div class="pack-controls" aria-label="Controles de packs y promociones">
+   <button class="carousel-btn" id="packsPrev" type="button" aria-label="Pack anterior">‹</button>
+   <div class="carousel-dots" id="packsDots" role="tablist" aria-label="Seleccionar pack"></div>
+   <button class="carousel-btn" id="packsNext" type="button" aria-label="Pack siguiente">›</button>
+  </div>
  </div>
 </div></section>
 
@@ -49,9 +67,8 @@
  <div>
   <h2>Sobre Vitali</h2>
   <p class="sub">Somos un centro de estética integral donde cada tratamiento se diseña a tu medida. Un equipo de profesionales, un espacio tranquilo y productos de primera calidad para que te sientas bien por dentro y por fuera.</p>
-  <blockquote>“Salí renovada. La atención es cálida y se nota el profesionalismo.”<cite>María L., clienta desde 2022</cite></blockquote>
  </div>
- <div class="eq"><div><b>+8 años</b>de experiencia</div><div><b>5 áreas</b>de tratamiento</div><div><b>+2.000</b>clientas felices</div></div>
+ <div class="eq"><div><b><span class="counter" data-target="8" data-prefix="+" data-suffix=" años">+8 años</span></b>de experiencia</div><div><b><span class="counter" data-target="5">5</span></b>áreas de tratamiento</div><div><b><span class="counter" data-target="2000" data-prefix="+">+2.000</span></b>clientas felices</div></div>
 </div></section>
 
 <section style="background:var(--l)"><div class="wrap">
@@ -120,7 +137,10 @@
  <div><h3>Horarios</h3><p>Lun a vie: 9 a 19 h<br>Sábados: 9 a 13 h<br>Instagram: @vitali.estetica</p></div>
 </div></footer>
 
-<a class="wa" id="waFlot" target="_blank" rel="noopener">WhatsApp</a>
+<a class="wa" id="waFlot" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+ <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.1a9.9 9.9 0 0 0-8.52 15L2.2 21.8l4.84-1.27A9.9 9.9 0 1 0 12 2.1Z"></path><path class="wa__phone" d="M8.35 7.4c.2-.22.42-.24.68-.16l1.12.53c.23.1.35.28.42.52l.32 1.1c.06.22 0 .4-.15.56l-.52.57c-.11.12-.13.24-.05.39.3.58.72 1.1 1.22 1.53.54.47 1.16.84 1.83 1.08.16.06.28.03.38-.1l.48-.62c.14-.18.32-.24.54-.17l1.16.37c.25.08.39.24.4.49l.04 1.03c.01.26-.09.47-.31.61-.45.29-.94.43-1.47.4-1.08-.06-2.34-.62-3.76-1.68-1.44-1.08-2.49-2.27-3.14-3.57-.58-1.16-.77-2.12-.56-2.88.11-.4.3-.74.57-1Z"></path></svg>
+ <span>WhatsApp</span>
+</a>
 
 <script src="config.js"></script>
 <script src="app.js"></script>

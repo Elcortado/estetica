@@ -9,7 +9,55 @@ const demo=firebaseConfig.apiKey.startsWith("TU_");
 let db,F,unsub=null,fbReady=null,tok=0;
 
 $("#waFlot").href="https://wa.me/"+CONFIG.whatsapp;
-$("#cats").innerHTML=CONFIG.servicios.map(s=>`<div class="card"><h3>${s.n}</h3><ul>${s.items.map(i=>`<li>${i}</li>`).join("")}</ul><small>Desde ${s.p}</small></div>`).join("");
+$("#cats").innerHTML=CONFIG.servicios.map((s,i)=>`<article class="card service-card"><span class="service-card__number">${String(i+1).padStart(2,"0")}</span><h3>${s.n}</h3><ul>${s.items.map(item=>`<li>${item}</li>`).join("")}</ul><small>Desde ${s.p}</small></article>`).join("");
+
+/* Menú responsive */
+const navToggle=$("#navToggle"),mainNav=$("#mainNav");
+if(navToggle&&mainNav){
+ const closeMenu=()=>{navToggle.classList.remove("is-open");mainNav.classList.remove("is-open");navToggle.setAttribute("aria-expanded","false");navToggle.setAttribute("aria-label","Abrir menú")};
+ navToggle.onclick=()=>{const open=!mainNav.classList.contains("is-open");navToggle.classList.toggle("is-open",open);mainNav.classList.toggle("is-open",open);navToggle.setAttribute("aria-expanded",String(open));navToggle.setAttribute("aria-label",open?"Cerrar menú":"Abrir menú")};
+ mainNav.querySelectorAll("a").forEach(a=>a.addEventListener("click",closeMenu));
+ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
+}
+
+/* Contadores que comienzan al entrar en pantalla */
+const counters=[...document.querySelectorAll(".counter")];
+function animateCounter(el){
+ const target=Number(el.dataset.target||0),prefix=el.dataset.prefix||"",suffix=el.dataset.suffix||"",duration=1500,start=performance.now();
+ const draw=now=>{const progress=Math.min((now-start)/duration,1),ease=1-Math.pow(1-progress,3),value=Math.round(target*ease);el.textContent=prefix+(value>=1000?value.toLocaleString("es-AR"):value)+suffix;if(progress<1)requestAnimationFrame(draw)};
+ requestAnimationFrame(draw);
+}
+if("IntersectionObserver" in window){
+ const counterObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){animateCounter(entry.target);counterObserver.unobserve(entry.target)}}),{threshold:.35});
+ counters.forEach(el=>counterObserver.observe(el));
+}else counters.forEach(animateCounter);
+
+/* Carrusel de packs: autoplay, flechas y puntos */
+const packsCarousel=$("#packsCarousel"),packsTrack=$("#packsTrack"),packsPrev=$("#packsPrev"),packsNext=$("#packsNext"),packsDots=$("#packsDots");
+if(packsCarousel&&packsTrack){
+ const packCards=[...packsTrack.children],reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
+ let packIndex=0,packTimer=null;
+ const visiblePacks=()=>window.innerWidth<=760?1:window.innerWidth<=940?2:3;
+ const maxPackIndex=()=>Math.max(0,packCards.length-visiblePacks());
+ const updateDots=()=>{
+  const total=maxPackIndex()+1;
+  if(packIndex>=total)packIndex=total-1;
+  packsDots.innerHTML=Array.from({length:total},(_,i)=>`<button type="button" role="tab" aria-label="Ir al grupo ${i+1}" aria-selected="${i===packIndex}" data-slide="${i}"></button>`).join("");
+  packsDots.querySelectorAll("button").forEach(dot=>dot.onclick=()=>{packIndex=Number(dot.dataset.slide);updateCarousel();startPackAuto()});
+ };
+ const updateCarousel=()=>{
+  const cardWidth=packCards[0]?.getBoundingClientRect().width||0,gap=parseFloat(getComputedStyle(packsTrack).gap)||20;
+  packIndex=Math.min(packIndex,maxPackIndex());packsTrack.style.transform=`translate3d(-${packIndex*(cardWidth+gap)}px,0,0)`;
+  packsPrev.disabled=packIndex===0;packsNext.disabled=packIndex===maxPackIndex();
+  packsDots.querySelectorAll("button").forEach((dot,i)=>dot.setAttribute("aria-selected",String(i===packIndex)));
+ };
+ const goToPack=index=>{const max=maxPackIndex();packIndex=index>max?0:index<0?max:index;updateCarousel()};
+ const startPackAuto=()=>{clearInterval(packTimer);packTimer=null;if(!reduceMotion.matches&&maxPackIndex()>0)packTimer=setInterval(()=>goToPack(packIndex+1),5000)};
+ packsPrev.onclick=()=>{goToPack(packIndex-1);startPackAuto()};packsNext.onclick=()=>{goToPack(packIndex+1);startPackAuto()};
+ packsCarousel.addEventListener("mouseenter",()=>clearInterval(packTimer));packsCarousel.addEventListener("mouseleave",startPackAuto);packsCarousel.addEventListener("focusin",()=>clearInterval(packTimer));packsCarousel.addEventListener("focusout",e=>{if(!packsCarousel.contains(e.relatedTarget))startPackAuto()});
+ updateDots();updateCarousel();startPackAuto();
+ window.addEventListener("resize",()=>{updateDots();updateCarousel();startPackAuto()});
+}
 
 const toM=t=>{const[a,b]=t.split(":");return a*60+ +b};
 function slotsDe(d,p){const h=(p.horarios||CONFIG.horarios)[d.getDay()];if(!h)return[];const o=[];for(let m=toM(h[0]);m+CONFIG.duracion<=toM(h[1]);m+=CONFIG.duracion)o.push(p2(m/60|0)+":"+p2(m%60));return o}
