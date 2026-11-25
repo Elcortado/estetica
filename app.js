@@ -200,8 +200,8 @@ async function cargarCatalogoPublico(){
   const snap=await F.getDoc(F.doc(db,"config","catalogo"));
   if(!snap.exists())return;
   const data=snap.data();
-  if(Array.isArray(data.servicios))SERVICIOS=data.servicios.filter(s=>s&&s.n).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));
-  if(Array.isArray(data.profesionales))PROS=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>({...p,esp:Array.isArray(p.esp)?p.esp:undefined}));
+  if(Array.isArray(data.servicios))SERVICIOS=data.servicios.filter(s=>s&&s.n).map(s=>({n:String(s.n),p:String(s.p||"Consultar"),items:Array.isArray(s.items)?s.items.filter(Boolean).map(String):[]}));
+  if(Array.isArray(data.profesionales))PROS=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>{const clean={id:String(p.id),n:String(p.n)};if(Array.isArray(p.esp)&&p.esp.length)clean.esp=p.esp.filter(Boolean).map(String);return clean});
   renderServices();refresh();
  }catch(e){/* Se mantiene el catálogo local si Firebase no permite lectura pública. */}
 }

@@ -6,7 +6,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const fmtF=f=>f.split("-").reverse().join("/");
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
-const copyCatalog=()=>({servicios:CONFIG.servicios.map(s=>({...s,items:[...(s.items||[])]})),profesionales:CONFIG.profesionales.map(p=>({...p,esp:Array.isArray(p.esp)?[...p.esp]:p.esp}))});
+const copyCatalog=()=>({servicios:CONFIG.servicios.map(s=>({n:String(s.n),p:String(s.p||"Consultar"),items:Array.isArray(s.items)?s.items.map(String):[]})),profesionales:CONFIG.profesionales.map(p=>{const clean={id:String(p.id),n:String(p.n)};if(Array.isArray(p.esp)&&p.esp.length)clean.esp=p.esp.map(String);return clean})});
 let catalog=copyCatalog();
 const PN=id=>(catalog.profesionales.find(p=>p.id===id)||{}).n||"";
 const esp=t=>(catalog.servicios.find(s=>s.n===t.servicio||s.items.includes(t.servicio))||{n:"Otro"}).n; // especialidad = categoría del servicio
@@ -70,13 +70,17 @@ async function cargarCatalogo(){
  const snap=await F.getDoc(F.doc(db,"config","catalogo"));
  if(snap.exists()){
   const data=snap.data();
-  if(Array.isArray(data.servicios))catalog.servicios=data.servicios.filter(s=>s&&s.n).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));
-  if(Array.isArray(data.profesionales))catalog.profesionales=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>({...p,esp:Array.isArray(p.esp)?p.esp:undefined}));
+  if(Array.isArray(data.servicios))catalog.servicios=data.servicios.filter(s=>s&&s.n).map(s=>({n:String(s.n),p:String(s.p||"Consultar"),items:Array.isArray(s.items)?s.items.filter(Boolean).map(String):[]}));
+  if(Array.isArray(data.profesionales))catalog.profesionales=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>{const clean={id:String(p.id),n:String(p.n)};if(Array.isArray(p.esp)&&p.esp.length)clean.esp=p.esp.filter(Boolean).map(String);return clean});
  }
  renderCatalogo();renderFiltros();
 }
 async function guardarCatalogo(){
- await F.setDoc(F.doc(db,"config","catalogo"),{servicios:catalog.servicios,profesionales:catalog.profesionales});
+ const data={
+  servicios:catalog.servicios.map(s=>({n:String(s.n),p:String(s.p||"Consultar"),items:Array.isArray(s.items)?s.items.filter(Boolean).map(String):[]})),
+  profesionales:catalog.profesionales.map(p=>{const clean={id:String(p.id),n:String(p.n)};if(Array.isArray(p.esp)&&p.esp.length)clean.esp=p.esp.filter(Boolean).map(String);return clean})
+ };
+ await F.setDoc(F.doc(db,"config","catalogo"),data);
  renderCatalogo();renderFiltros();render();
 }
 
