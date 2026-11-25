@@ -85,3 +85,4 @@ footer h3{color:#fff;margin-bottom:8px}
 .pros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .pros button{border:1.5px solid #d9d0e8;background:#fff;border-radius:999px;padding:6px 16px;font:inherit;color:var(--v);cursor:pointer}
 .pros .on{background:var(--v);border-color:var(--v);color:#fff}
+.lbl{font-size:.85rem;color:var(--m);margin:10px 0 6px}

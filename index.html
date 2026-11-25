@@ -71,11 +71,12 @@
   </div>
   <div>
    <div class="panel" id="slotBox">
-    <h3>2. Elegí el horario</h3>
+    <h3>2. Especialidad, profesional y horario</h3>
     <p class="hint" id="slotHint" style="margin:0">Primero seleccioná un día en el calendario.</p>
     <div id="fechaTxt" class="hint hide" style="margin:0 0 10px;text-transform:capitalize"></div>
-    <div class="pros hide" id="pros"></div>
-    <div id="slots"></div>
+    <div id="espBox" class="hide"><p class="lbl">Especialidad</p><div class="pros" id="esps"></div></div>
+    <div id="proBox" class="hide"><p class="lbl">Profesional</p><div class="pros" id="pros"></div></div>
+    <div id="horBox" class="hide"><p class="lbl">Horario</p><div id="slots"></div></div>
     <p class="hint hide" id="legend">Los horarios tachados ya están reservados (pendientes o confirmados).</p>
    </div>
    <div class="panel hide" id="formBox" style="margin-top:20px">
@@ -83,8 +84,7 @@
     <form id="form">
      <label for="nombre">Nombre y apellido</label><input id="nombre" name="nombre" required maxlength="80" autocomplete="name">
      <label for="telefono">Teléfono / WhatsApp</label><input id="telefono" name="telefono" required maxlength="30" type="tel" autocomplete="tel">
-     <label for="servicio">Servicio</label><select id="servicio" name="servicio" required></select>
-     <label for="comentario">Comentarios (opcional)</label><textarea id="comentario" name="comentario" rows="2" maxlength="300"></textarea>
+     <label for="comentario">Comentarios (opcional, por ejemplo el tratamiento que te interesa)</label><textarea id="comentario" name="comentario" rows="2" maxlength="300"></textarea>
      <p class="hint" id="resumen"></p>
      <p class="err hide" id="err"></p>
      <button class="btn" id="enviar" style="margin-top:14px;width:100%">Reservar turno</button>

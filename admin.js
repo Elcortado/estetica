@@ -7,7 +7,7 @@ const key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${Str
 const fmtF=f=>f.split("-").reverse().join("/");
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const PN=id=>(CONFIG.profesionales.find(p=>p.id===id)||{}).n||"";
-const esp=t=>(CONFIG.servicios.find(s=>s.items.includes(t.servicio))||{n:"Otro"}).n; // especialidad = categoría del servicio
+const esp=t=>(CONFIG.servicios.find(s=>s.n===t.servicio||s.items.includes(t.servicio))||{n:"Otro"}).n; // especialidad = categoría del servicio
 let F,AU,db,auth,turnos={},estados={},unsubs=[],fe="todos",pf="",ef="",dD=key(hoy0()),dH="";
 
 function wa(t){
@@ -36,7 +36,7 @@ function render(){
   const ok=t.estado==="confirmado";
   h+=`<div class="t"><div class="h">${esc(t.hora)}</div>
    <div><p><strong>${esc(t.nombre)}</strong> <span class="tag${ok?" ok":""}">${ok?"Confirmado":"Pendiente"}</span></p>
-   <p>${esc(esp(t))}: ${esc(t.servicio)}${PN(t.pro)?" · "+esc(PN(t.pro)):""} · Tel. ${esc(t.telefono)}</p>${t.comentario?`<p>“${esc(t.comentario)}”</p>`:""}</div>
+   <p>${esc(esp(t))}${t.servicio!==esp(t)?": "+esc(t.servicio):""}${PN(t.pro)?" · "+esc(PN(t.pro)):""} · Tel. ${esc(t.telefono)}</p>${t.comentario?`<p>“${esc(t.comentario)}”</p>`:""}</div>
    <div class="acc">${ok?"":`<button class="btn" data-a="ok" data-id="${esc(t.id)}">Confirmar</button>`}
    <a class="btn g" target="_blank" rel="noopener" href="${esc(wa(t))}">WhatsApp</a>
    <button class="btn r" data-a="del" data-id="${esc(t.id)}">Cancelar</button></div></div>`;
