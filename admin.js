@@ -64,7 +64,7 @@ function renderFiltros(){
  if(!proActual)pf="";if(!espActual)ef="";
  $("#pfil").innerHTML='<option value="">Todas</option>'+catalog.profesionales.map(p=>`<option value="${esc(p.id)}">${esc(p.n)}</option>`).join("");
  $("#efil").innerHTML='<option value="">Todas</option>'+[...catalog.servicios.map(s=>s.n),"Otro"].map(n=>`<option>${esc(n)}</option>`).join("");
- $("#pfil").value=pf;$("#efil").value=ef;$("#pbox").classList.toggle("hide",catalog.profesionales.length<2);
+ $("#pfil").value=pf;$("#efil").value=ef;$("#pbox").classList.remove("hide");$("#pfil").disabled=!catalog.profesionales.length;
 }
 async function cargarCatalogo(){
  const snap=await F.getDoc(F.doc(db,"config","catalogo"));
