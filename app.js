@@ -59,6 +59,22 @@ if(packsCarousel&&packsTrack){
  window.addEventListener("resize",()=>{updateDots();updateCarousel();startPackAuto()});
 }
 
+/* Consulta personalizada por WhatsApp */
+const consultaForm=$("#consultaForm");
+if(consultaForm){
+ const consultaStatus=$("#consultaStatus");
+ consultaForm.onsubmit=e=>{
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(e.target));
+  const msg=`Hola Vitali! Quiero hacer una consulta personalizada:\n\nNombre: ${data.nombre.trim()}\nTeléfono: ${data.telefono.trim()}\nConsulta: ${data.mensaje.trim()}`;
+  const url=`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
+  consultaStatus.textContent="Abrimos WhatsApp para que puedas enviar tu consulta.";
+  consultaStatus.classList.remove("hide");
+  e.target.reset();
+  window.open(url,"_blank","noopener");
+ };
+}
+
 const toM=t=>{const[a,b]=t.split(":");return a*60+ +b};
 function slotsDe(d,p){const h=(p.horarios||CONFIG.horarios)[d.getDay()];if(!h)return[];const o=[];for(let m=toM(h[0]);m+CONFIG.duracion<=toM(h[1]);m+=CONFIG.duracion)o.push(p2(m/60|0)+":"+p2(m%60));return o}
 const idOf=(f,t,p)=>`${f}_${t.replace(":","")}_${p}`;

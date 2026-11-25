@@ -17,7 +17,7 @@
    <span></span><span></span><span></span>
   </button>
   <div class="nav__links" id="mainNav">
-   <a href="#servicios">Servicios</a><a href="#packs">Packs</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a><a class="btn w" href="#reservas">Reservar turno</a>
+   <a href="#servicios">Servicios</a><a href="#packs">Packs</a><a href="#nosotros">Nosotros</a><a href="#consulta">Consulta</a><a href="#contacto">Contacto</a><a class="btn w" href="#reservas">Reservar turno</a>
   </div>
  </div>
 </nav>
@@ -71,15 +71,6 @@
  <div class="eq"><div><b><span class="counter" data-target="8" data-prefix="+" data-suffix=" años">+8 años</span></b>de experiencia</div><div><b><span class="counter" data-target="5">5</span></b>áreas de tratamiento</div><div><b><span class="counter" data-target="2000" data-prefix="+">+2.000</span></b>clientas felices</div></div>
 </div></section>
 
-<section style="background:var(--l)"><div class="wrap">
- <h2>Lo que dicen de nosotras</h2>
- <div class="grid" style="margin-top:24px">
-  <blockquote>“Mi piel cambió muchísimo en tres sesiones.”<cite>Carolina R.</cite></blockquote>
-  <blockquote>“Reservar es facilísimo y siempre me atienden a horario.”<cite>Luciana P.</cite></blockquote>
-  <blockquote>“El mejor masaje que probé. Súper recomendable.”<cite>Natalia G.</cite></blockquote>
- </div>
-</div></section>
-
 <section id="reservas"><div class="wrap">
  <h2>Reservá tu turno</h2>
  <p class="sub">Elegí el día y el horario. Tu turno queda pendiente de confirmación hasta que te escribamos por WhatsApp.</p>
@@ -123,6 +114,40 @@
  </div>
 </div></section>
 
+<section id="consulta" class="contact-section"><div class="wrap">
+ <div class="contact-heading">
+  <p class="eyebrow">Estamos para ayudarte</p>
+  <h2>¿Tenés una consulta?</h2>
+  <p class="sub">Escribinos qué necesitás y te respondemos por WhatsApp con una recomendación personalizada.</p>
+ </div>
+ <div class="contact-layout">
+  <div class="contact-card">
+   <h3>Enviá tu consulta personalizada</h3>
+   <form id="consultaForm" class="consultation-form">
+    <label for="consultaNombre">Nombre y apellido</label><input id="consultaNombre" name="nombre" required maxlength="80" autocomplete="name">
+    <label for="consultaContacto">Teléfono / WhatsApp</label><input id="consultaContacto" name="telefono" required maxlength="30" type="tel" autocomplete="tel">
+    <label for="consultaMensaje">¿En qué podemos ayudarte?</label><textarea id="consultaMensaje" name="mensaje" required rows="5" maxlength="500" placeholder="Contanos qué tratamiento te interesa o qué necesitás saber..."></textarea>
+    <button class="btn" type="submit">Enviar consulta</button>
+    <p class="hint hide" id="consultaStatus" role="status"></p>
+   </form>
+  </div>
+  <div class="contact-card map-card">
+   <div class="map-card__heading"><div><p class="eyebrow">Encontranos</p><h3>Visitá nuestro espacio</h3></div><span class="map-pin" aria-hidden="true">⌖</span></div>
+   <div class="map-frame"><iframe title="Ubicación de Vitali Estética Integral en Resistencia, Chaco" src="https://www.google.com/maps?q=Av.+Ejemplo+1234,+Resistencia,+Chaco&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+   <div class="map-card__footer"><p>Av. Ejemplo 1234, Resistencia, Chaco</p><a href="https://www.google.com/maps/search/?api=1&query=Av.+Ejemplo+1234,+Resistencia,+Chaco" target="_blank" rel="noopener">Abrir en Google Maps ↗</a></div>
+  </div>
+ </div>
+</div></section>
+
+<section style="background:var(--l)"><div class="wrap">
+ <h2>Lo que dicen de nosotras</h2>
+ <div class="grid" style="margin-top:24px">
+  <blockquote>“Mi piel cambió muchísimo en tres sesiones.”<cite>Carolina R.</cite></blockquote>
+  <blockquote>“Reservar es facilísimo y siempre me atienden a horario.”<cite>Luciana P.</cite></blockquote>
+  <blockquote>“El mejor masaje que probé. Súper recomendable.”<cite>Natalia G.</cite></blockquote>
+ </div>
+</div></section>
+
 <section><div class="wrap" style="max-width:760px">
  <h2>Preguntas frecuentes</h2>
  <details><summary>¿Cómo sé que mi turno está confirmado?</summary><p>Al reservar queda pendiente. Cuando recibas nuestro mensaje de WhatsApp, el turno está confirmado.</p></details>
@@ -133,9 +158,11 @@
 
 <footer id="contacto"><div class="wrap fg">
  <div><h3>Vitali · Estética Integral</h3><p>Tu espacio de belleza y bienestar.</p></div>
- <div><h3>Dónde estamos</h3><p>Av. Ejemplo 1234, Resistencia, Chaco<br>Tel. +54 9 362 400-0000</p></div>
+  <div><h3>Dónde estamos</h3><p>Av. Ejemplo 1234, Resistencia, Chaco<br>WhatsApp +54 362 518-1576</p></div>
  <div><h3>Horarios</h3><p>Lun a vie: 9 a 19 h<br>Sábados: 9 a 13 h<br>Instagram: @vitali.estetica</p></div>
 </div></footer>
+
+<div class="site-credit">Desarrollado por <strong>Tecnova Web</strong></div>
 
 <a class="wa" id="waFlot" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.1a9.9 9.9 0 0 0-8.52 15L2.2 21.8l4.84-1.27A9.9 9.9 0 1 0 12 2.1Z"></path><path class="wa__phone" d="M8.35 7.4c.2-.22.42-.24.68-.16l1.12.53c.23.1.35.28.42.52l.32 1.1c.06.22 0 .4-.15.56l-.52.57c-.11.12-.13.24-.05.39.3.58.72 1.1 1.22 1.53.54.47 1.16.84 1.83 1.08.16.06.28.03.38-.1l.48-.62c.14-.18.32-.24.54-.17l1.16.37c.25.08.39.24.4.49l.04 1.03c.01.26-.09.47-.31.61-.45.29-.94.43-1.47.4-1.08-.06-2.34-.62-3.76-1.68-1.44-1.08-2.49-2.27-3.14-3.57-.58-1.16-.77-2.12-.56-2.88.11-.4.3-.74.57-1Z"></path></svg>

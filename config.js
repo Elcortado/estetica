@@ -1,6 +1,6 @@
 // Configuración de la web y del panel: horarios, servicios, profesionales, WhatsApp y Firebase.
 const CONFIG = {
-  whatsapp: "5493624216834", // código de país + número, sin + ni espacios
+  whatsapp: "543625181576", // código de país + número, sin + ni espacios
   duracion: 60, // minutos por turno
   diasAdelante: 60, // cuántos días a futuro se puede reservar
   profesionales: [
