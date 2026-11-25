@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitali · Estética Integral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+ <b>Vitali</b>
+ <div><a href="#servicios">Servicios</a><a href="#packs">Packs</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a><a class="btn w" href="#reservas">Reservar turno</a></div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+ <div>
+  <h1>Tu espacio de belleza y bienestar</h1>
+  <p>Tratamientos faciales, corporales, depilación, manos y pies y masajes en un solo lugar, con atención personalizada.</p>
+  <a class="btn w" href="#reservas">Reservar turno</a>
+ </div>
+ <img src="logo.jpg" alt="Vitali Estética Integral">
+</div></header>
+
+<section id="servicios"><div class="wrap">
+ <h2>Nuestros servicios</h2>
+ <p class="sub">Elegí una categoría y combiná lo que necesites. Los precios son orientativos.</p>
+ <div class="grid" id="cats"></div>
+</div></section>
+
+<section id="packs" class="packs"><div class="wrap">
+ <h2>Packs y promociones</h2>
+ <p class="sub">Combinaciones pensadas para que cuides tu piel y tu cuerpo al mejor precio.</p>
+ <div class="grid">
+  <div class="card"><h3>Pack Renová</h3><p>Limpieza facial profunda + masaje descontracturante.</p><small><strong>$38.000</strong></small></div>
+  <div class="card"><h3>Pack Verano</h3><p>Depilación definitiva (4 zonas) + hidratación corporal.</p><small><strong>$52.000</strong></small></div>
+  <div class="card"><h3>Pack Día de spa</h3><p>Masaje relajante, facial hidratante y belleza de manos.</p><small><strong>$60.000</strong></small></div>
+ </div>
+</div></section>
+
+<section id="nosotros"><div class="wrap two">
+ <div>
+  <h2>Sobre Vitali</h2>
+  <p class="sub">Somos un centro de estética integral donde cada tratamiento se diseña a tu medida. Un equipo de profesionales, un espacio tranquilo y productos de primera calidad para que te sientas bien por dentro y por fuera.</p>
+  <blockquote>“Salí renovada. La atención es cálida y se nota el profesionalismo.”<cite>María L., clienta desde 2022</cite></blockquote>
+ </div>
+ <div class="eq"><div><b>+8 años</b>de experiencia</div><div><b>5 áreas</b>de tratamiento</div><div><b>+2.000</b>clientas felices</div></div>
+</div></section>
+
+<section style="background:var(--l)"><div class="wrap">
+ <h2>Lo que dicen de nosotras</h2>
+ <div class="grid" style="margin-top:24px">
+  <blockquote>“Mi piel cambió muchísimo en tres sesiones.”<cite>Carolina R.</cite></blockquote>
+  <blockquote>“Reservar es facilísimo y siempre me atienden a horario.”<cite>Luciana P.</cite></blockquote>
+  <blockquote>“El mejor masaje que probé. Súper recomendable.”<cite>Natalia G.</cite></blockquote>
+ </div>
+</div></section>
+
+<section id="reservas"><div class="wrap">
+ <h2>Reservá tu turno</h2>
+ <p class="sub">Elegí el día y el horario. Tu turno queda pendiente de confirmación hasta que te escribamos por WhatsApp.</p>
+ <div id="demo" class="hide">Modo demostración: Firebase todavía no está configurado, los turnos se guardan solo en este navegador.</div>
+ <div class="book">
+  <div class="panel">
+   <h3>1. Elegí el día</h3>
+   <div class="mh"><button id="prev" aria-label="Mes anterior">‹</button><span id="mes"></span><button id="next" aria-label="Mes siguiente">›</button></div>
+   <div id="grid"></div>
+   <p class="hint">Atendemos de lunes a viernes de 9 a 19 h y sábados de 9 a 13 h.</p>
+  </div>
+  <div>
+   <div class="panel" id="slotBox">
+    <h3>2. Elegí el horario</h3>
+    <p class="hint" id="slotHint" style="margin:0">Primero seleccioná un día en el calendario.</p>
+    <div id="fechaTxt" class="hint hide" style="margin:0 0 10px;text-transform:capitalize"></div>
+    <div class="pros hide" id="pros"></div>
+    <div id="slots"></div>
+    <p class="hint hide" id="legend">Los horarios tachados ya están reservados (pendientes o confirmados).</p>
+   </div>
+   <div class="panel hide" id="formBox" style="margin-top:20px">
+    <h3>3. Tus datos</h3>
+    <form id="form">
+     <label for="nombre">Nombre y apellido</label><input id="nombre" name="nombre" required maxlength="80" autocomplete="name">
+     <label for="telefono">Teléfono / WhatsApp</label><input id="telefono" name="telefono" required maxlength="30" type="tel" autocomplete="tel">
+     <label for="servicio">Servicio</label><select id="servicio" name="servicio" required></select>
+     <label for="comentario">Comentarios (opcional)</label><textarea id="comentario" name="comentario" rows="2" maxlength="300"></textarea>
+     <p class="hint" id="resumen"></p>
+     <p class="err hide" id="err"></p>
+     <button class="btn" id="enviar" style="margin-top:14px;width:100%">Reservar turno</button>
+    </form>
+   </div>
+   <div class="panel okbox hide" id="okBox">
+    <span class="tag">Pendiente de confirmación</span>
+    <h3 style="margin-top:12px">¡Turno reservado!</h3>
+    <p>Último paso: enviá tus datos por WhatsApp para que podamos confirmarlo.</p>
+    <a class="btn" id="waLink" target="_blank" rel="noopener" style="background:var(--ok)">Enviar por WhatsApp</a>
+    <p><button class="hint" id="otro" style="background:none;border:0;text-decoration:underline;cursor:pointer;color:var(--m)">Reservar otro turno</button></p>
+   </div>
+  </div>
+ </div>
+</div></section>
+
+<section><div class="wrap" style="max-width:760px">
+ <h2>Preguntas frecuentes</h2>
+ <details><summary>¿Cómo sé que mi turno está confirmado?</summary><p>Al reservar queda pendiente. Cuando recibas nuestro mensaje de WhatsApp, el turno está confirmado.</p></details>
+ <details><summary>¿Puedo cancelar o cambiar el horario?</summary><p>Sí, avisanos con al menos 24 horas de anticipación por WhatsApp.</p></details>
+ <details><summary>¿Necesito dejar una seña?</summary><p>En algunos tratamientos pedimos una seña del 30%. Te lo indicamos al confirmar.</p></details>
+ <details><summary>¿Qué medios de pago aceptan?</summary><p>Efectivo, transferencia y tarjetas de débito y crédito.</p></details>
+</div></section>
+
+<footer id="contacto"><div class="wrap fg">
+ <div><h3>Vitali · Estética Integral</h3><p>Tu espacio de belleza y bienestar.</p></div>
+ <div><h3>Dónde estamos</h3><p>Av. Ejemplo 1234, Resistencia, Chaco<br>Tel. +54 9 362 400-0000</p></div>
+ <div><h3>Horarios</h3><p>Lun a vie: 9 a 19 h<br>Sábados: 9 a 13 h<br>Instagram: @vitali.estetica</p></div>
+</div></footer>
+
+<a class="wa" id="waFlot" target="_blank" rel="noopener">WhatsApp</a>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
