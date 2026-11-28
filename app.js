@@ -4,13 +4,24 @@ const MES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Se
 const today=new Date();today.setHours(0,0,0,0);
 const maxD=new Date(today);maxD.setDate(maxD.getDate()+CONFIG.diasAdelante);
 let SERVICIOS=CONFIG.servicios,PROS=CONFIG.profesionales;
+const SERVICE_META=Object.fromEntries(CONFIG.servicios.map(s=>[s.n,s]));
 const proDe=id=>PROS.find(p=>p.id===id)||PROS[0];
 let view=new Date(today.getFullYear(),today.getMonth(),1),selD=null,selT=null,selP=null,selE=null,booked={};
 const demo=firebaseConfig.apiKey.startsWith("TU_");
 let db,F,unsub=null,fbReady=null,tok=0;
 
 $("#waFlot").href="https://wa.me/"+CONFIG.whatsapp;
-const renderServices=()=>$("#cats").innerHTML=SERVICIOS.map((s,i)=>`<article class="card service-card"><span class="service-card__number">${String(i+1).padStart(2,"0")}</span><h3>${s.n}</h3><ul>${s.items.map(item=>`<li>${item}</li>`).join("")}</ul><small>Desde ${s.p}</small></article>`).join("");
+const renderServices=()=>{
+ const target=$("#cats");
+ if(!target)return;
+ target.innerHTML=SERVICIOS.map((service,i)=>{
+  const s={...(SERVICE_META[service.n]||{}),...service};
+  const slug=s.slug||String(s.n).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-");
+  const image=s.image||`assets/img/${slug}.svg`;
+  const desc=s.desc||s.items?.join(" · ")||"Tratamientos pensados para vos.";
+  return `<article class="card service-card" style="--delay:${i*.07}s"><a class="service-card__image" href="${slug}.html" aria-label="Ver servicio de ${s.n}"><img src="${image}" alt="Imagen demostrativa de ${s.n}" loading="lazy"><span class="service-card__index">${String(i+1).padStart(2,"0")}</span></a><div class="service-card__body"><h3>${s.n}</h3><p>${desc}</p><a class="btn service-card__link" href="${slug}.html">Ver servicio <span aria-hidden="true">↗</span></a></div></article>`;
+ }).join("");
+};
 renderServices();
 
 /* Menú responsive */
@@ -200,7 +211,13 @@ async function cargarCatalogoPublico(){
   const snap=await F.getDoc(F.doc(db,"config","catalogo"));
   if(!snap.exists())return;
   const data=snap.data();
-  if(Array.isArray(data.servicios))SERVICIOS=data.servicios.filter(s=>s&&s.n).map(s=>({n:String(s.n),p:String(s.p||"Consultar"),items:Array.isArray(s.items)?s.items.filter(Boolean).map(String):[]}));
+  if(Array.isArray(data.servicios)){
+   const remoto=Object.fromEntries(data.servicios.filter(s=>s&&s.n).map(s=>[String(s.n),s]));
+   SERVICIOS=CONFIG.servicios.map(base=>{
+    const s=remoto[base.n]||{};
+    return {...base,p:String(s.p||base.p||"Consultar"),items:Array.isArray(s.items)?s.items.filter(Boolean).map(String):base.items};
+   });
+  }
   if(Array.isArray(data.profesionales))PROS=data.profesionales.filter(p=>p&&p.id&&p.n).map(p=>{const clean={id:String(p.id),n:String(p.n)};if(Array.isArray(p.esp)&&p.esp.length)clean.esp=p.esp.filter(Boolean).map(String);return clean});
   renderServices();refresh();
  }catch(e){/* Se mantiene el catálogo local si Firebase no permite lectura pública. */}
